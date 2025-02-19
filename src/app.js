@@ -12,7 +12,13 @@ const __dirname = path.resolve();
 
 const app = express();
 const upload = multer({ dest: "files/", limits: { fileSize: 2048 * 2048 } });
-app.use(cors());
+const corsOptions = {
+  origin: [
+    "http://127.0.0.1:3000",
+    "https://one-sprint-mission-3.onrender.com",
+  ],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/download", express.static("files"));
@@ -21,6 +27,7 @@ app.use("/products", productRouter);
 
 app.use("/articles", articleRouter);
 
+//업로드 에러처리
 app.get("/upload", (req, res) => {
   res.sendFile(__dirname + "/webpage/upload.html");
 });
