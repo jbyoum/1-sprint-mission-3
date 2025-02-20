@@ -50,7 +50,7 @@ uploadRouter
       const filePath = `${__dirname}/files/${req.file.filename}`;
       const ext = await fileTypeFromFile(filePath);
       console.log(ext);
-      if (!ext in allowedExt) {
+      if (!allowedExt.includes(ext)) {
         fs.unlink(filePath, (err) => {
           if (err) console.log("unlink err", err);
         });
