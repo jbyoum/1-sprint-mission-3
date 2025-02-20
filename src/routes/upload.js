@@ -14,6 +14,14 @@ const upload = multer({
   limits: { fieldNameSize: 100, fileSize: 2048 * 2048 },
 });
 
+uploadRouter.route("/deleteAll").get(
+  asyncHandler(async (_, res) => {
+    const dir = __dirname + "files/";
+    fs.readdirSync(dir).forEach((file) => fs.rmSync(`${dir}/${file}`));
+    res.send("deleting sync");
+  })
+);
+
 uploadRouter
   .route("/")
   .get(
@@ -24,7 +32,7 @@ uploadRouter
   .post(
     upload.single("attachment"),
     asyncHandler(async (req, res) => {
-      const filePath = `/files/${req.file.filename}`;
+      const filePath = `${__dirname}/files/${req.file.filename}`;
       const ext = await fileTypeFromFile(filePath);
       console.log(ext);
       if (ext === undefined) {
