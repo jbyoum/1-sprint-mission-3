@@ -5,8 +5,6 @@ export default function asyncHandler(handler) {
     try {
       await handler(req, res);
     } catch (e) {
-      console.log("Error occured");
-      console.log(e);
       if (
         e.name === "StructError" ||
         (e instanceof Prisma.PrismaClientKnownRequestError &&

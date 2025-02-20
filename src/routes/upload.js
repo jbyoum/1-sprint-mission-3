@@ -6,7 +6,6 @@ import { fileTypeFromFile } from "file-type";
 import fs from "fs";
 
 const __dirname = path.resolve();
-
 const uploadRouter = express.Router();
 
 const allowedExt = [
@@ -29,14 +28,6 @@ const upload = multer({
   limits: { fieldNameSize: 100, fileSize: 2048 * 2048 },
 });
 
-uploadRouter.route("/deleteAll").get(
-  asyncHandler(async (_, res) => {
-    const dir = __dirname + "/files/";
-    fs.readdirSync(dir).forEach((file) => fs.rmSync(`${dir}/${file}`));
-    res.send("deleting sync");
-  })
-);
-
 uploadRouter
   .route("/")
   .get(
@@ -50,11 +41,8 @@ uploadRouter
       const filePath = `${__dirname}/files/${req.file.filename}`;
       const mimeType = await fileTypeFromFile(filePath);
       const ext = mimeType["ext"];
-      console.log(ext);
       if (!allowedExt.includes(ext)) {
-        fs.unlink(filePath, (err) => {
-          if (err) console.log("unlink err", err);
-        });
+        fs.unlink(filePath);
         const e = new Error("Make sure you are uploading an image type.");
         e.name = "FileExtensionError";
         throw e;
