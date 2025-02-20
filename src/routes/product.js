@@ -25,12 +25,6 @@ productRouter
       } = req.query;
       const orderBy =
         order === "recent" ? { createdAt: "desc" } : { createdAt: "acs" };
-      switch (order) {
-        case "recent":
-          orderBy = { createdAt: "desc" };
-        default:
-          orderBy = { createdAt: "acs" };
-      }
       const where =
         name === "" && description === ""
           ? {}
