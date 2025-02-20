@@ -50,15 +50,13 @@ articleRouter
     })
   )
   .post(
-    asyncHandler(
-      asyncHandler(async (req, res) => {
-        assert(req.body, CreateArticle);
-        const article = await prisma.article.create({
-          data: req.body,
-        });
-        res.status(201).send(article);
-      })
-    )
+    asyncHandler(async (req, res) => {
+      assert(req.body, CreateArticle);
+      const article = await prisma.article.create({
+        data: req.body,
+      });
+      res.status(201).send(article);
+    })
   );
 
 articleRouter
