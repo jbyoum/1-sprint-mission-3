@@ -12,44 +12,53 @@ import {
 const prisma = new PrismaClient();
 const productRouter = express.Router();
 
+productRouter.route("/comment").get(
+  asyncHandler(async (req, res) => {
+    const { limit = 10, cursorId } = req.query;
+    const comment = await prisma.productComment.findMany({
+      skip: cursorId ? 1 : 0,
+      take: parseInt(limit),
+      ...(cursorId && { cursor: { id: cursorId } }),
+    });
+    res.send(comment);
+  })
+);
+
 productRouter
-  .route("/")
-  .get(
-    asyncHandler(async (req, res) => {
-      const {
-        offset = 0,
-        limit = 10,
-        order,
-        name = "",
-        description = "",
-      } = req.query;
-      const orderBy =
-        order === "recent" ? { createdAt: "desc" } : { createdAt: "acs" };
-      const where =
-        name === "" && description === ""
-          ? {}
-          : {
-              AND: [
-                { name: { contains: name } },
-                { description: { contains: description } },
-              ],
-            };
-      const products = await prisma.product.findMany({
-        where,
-        orderBy,
-        skip: parseInt(offset),
-        take: parseInt(limit),
-      });
-      res.send(products);
-    })
-  )
+  .route("/comment/:id")
   .post(
     asyncHandler(async (req, res) => {
-      assert(req.body, CreateProduct);
-      const product = await prisma.product.create({
-        data: req.body,
+      assert(req.body, CreateProductComment);
+      const { id } = req.params;
+      const comment = await prisma.productComment.create({
+        data: {
+          content: req.body.content,
+          productId: id,
+        },
       });
-      res.status(201).send(product);
+      res.status(201).send(comment);
+    })
+  )
+  .patch(
+    asyncHandler(async (req, res) => {
+      assert(req.body, PatchProductComment);
+      const { id } = req.params;
+      const comment = await prisma.productComment.update({
+        where: { id },
+        data: {
+          content: req.body.content,
+        },
+      });
+      res.send(comment);
+    })
+  )
+  .delete(
+    asyncHandler(async (req, res) => {
+      const { id } = req.params;
+      await prisma.productComment.delete({
+        where: { id },
+      });
+      res.sendStatus(204);
     })
   );
 
@@ -61,7 +70,6 @@ productRouter
       const product = await prisma.product.findUnique({
         where: { id },
       });
-      console.log(product);
       res.send(product);
     })
   )
@@ -87,47 +95,43 @@ productRouter
   );
 
 productRouter
-  .route("/comment/:id")
+  .route("/")
   .get(
     asyncHandler(async (req, res) => {
-      const { limit = 10, cursorId } = req.query;
-      const comment = await prisma.productComment.findMany({
-        skip: cursorId ? 1 : 0,
+      const {
+        offset = 0,
+        limit = 10,
+        order,
+        name = "",
+        description = "",
+      } = req.query;
+      const orderBy =
+        order === "recent" ? { createdAt: "desc" } : { createdAt: "asc" };
+      const where =
+        name === "" && description === ""
+          ? {}
+          : {
+              AND: [
+                { name: { contains: name } },
+                { description: { contains: description } },
+              ],
+            };
+      const products = await prisma.product.findMany({
+        where,
+        orderBy,
+        skip: parseInt(offset),
         take: parseInt(limit),
-        ...(cursorId && { cursor: { id: cursorId } }),
       });
-      res.send(comment);
+      res.send(products);
     })
   )
   .post(
     asyncHandler(async (req, res) => {
-      assert(req.body, CreateProductComment);
-      const comment = await prisma.productComment.create({
+      assert(req.body, CreateProduct);
+      const product = await prisma.product.create({
         data: req.body,
       });
-      res.status(201).send(comment);
-    })
-  )
-  .patch(
-    asyncHandler(async (req, res) => {
-      const { id } = req.params;
-      assert(req.body, PatchProductComment);
-      const comment = await prisma.productComment.update({
-        where: { id },
-        data: {
-          content: req.body.content,
-        },
-      });
-      res.send(comment);
-    })
-  )
-  .delete(
-    asyncHandler(async (req, res) => {
-      const { id } = req.params;
-      await prisma.productComment.delete({
-        where: { id },
-      });
-      res.sendStatus(204);
+      res.status(201).send(product);
     })
   );
 
