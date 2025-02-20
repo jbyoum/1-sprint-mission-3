@@ -9,6 +9,21 @@ const __dirname = path.resolve();
 
 const uploadRouter = express.Router();
 
+const allowedExt = [
+  "jpg",
+  "j2c",
+  "jp2",
+  "jpm",
+  "jpx",
+  "png",
+  "webp",
+  "avif",
+  "bmp",
+  "gif",
+  "icns",
+  "ico",
+];
+
 const upload = multer({
   dest: "files/",
   limits: { fieldNameSize: 100, fileSize: 2048 * 2048 },
@@ -16,7 +31,7 @@ const upload = multer({
 
 uploadRouter.route("/deleteAll").get(
   asyncHandler(async (_, res) => {
-    const dir = __dirname + "files/";
+    const dir = __dirname + "/files/";
     fs.readdirSync(dir).forEach((file) => fs.rmSync(`${dir}/${file}`));
     res.send("deleting sync");
   })
@@ -35,7 +50,7 @@ uploadRouter
       const filePath = `${__dirname}/files/${req.file.filename}`;
       const ext = await fileTypeFromFile(filePath);
       console.log(ext);
-      if (ext === undefined) {
+      if (!ext in allowedExt) {
         fs.unlink(filePath, (err) => {
           if (err) console.log("unlink err", err);
         });
