@@ -48,13 +48,14 @@ uploadRouter
     upload.single("attachment"),
     asyncHandler(async (req, res) => {
       const filePath = `${__dirname}/files/${req.file.filename}`;
-      const ext = await fileTypeFromFile(filePath);
+      const mimeType = await fileTypeFromFile(filePath);
+      const ext = mimeType["ext"];
       console.log(ext);
       if (!allowedExt.includes(ext)) {
         fs.unlink(filePath, (err) => {
           if (err) console.log("unlink err", err);
         });
-        const e = new Error("");
+        const e = new Error("Make sure you are uploading an image type.");
         e.name = "FileExtensionError";
         throw e;
       }
