@@ -2,7 +2,7 @@ import express from "express";
 import asyncHandler from "../async-handler.js";
 import multer from "multer";
 import path from "path";
-import { fileTypeFromFime } from "file-type";
+import { fileTypeFromFile } from "file-type";
 import fs from "fs";
 
 const __dirname = path.resolve();
@@ -25,7 +25,7 @@ uploadRouter
     upload.single("attachment"),
     asyncHandler(async (req, res) => {
       const filePath = `/files/${req.file.filename}`;
-      const ext = await fileTypeFromFime(filePath);
+      const ext = await fileTypeFromFile(filePath);
       console.log(ext);
       if (ext === undefined) {
         fs.unlink(filePath, (err) => {
